@@ -21,16 +21,17 @@ namespace Course_18
 
     internal class Program
     {
-        static string connectionString = "Server=LAPTOP-TANOHAT6; Database=ContactsDB; Integrated Security=True;";
+        static string connectionString = "Server = LAPTOP-TANOHAT6; Database = ContactsDB; Integrated Security = True;";
 
-        public static void AddNewContact(stContact contact)
+        public static void AddNewContactAndGetID(stContact contact)
         {
            SqlConnection sqlConnection = new SqlConnection(connectionString);
 
 
-            string sqlQuery = "INSERT INTO [dbo].[Contacts]" +
-                " ([FirstName],[LastName],[Email],[Phone],[Address],[CountryID]) " +
-                " VALUES (@FirstName,@LastName,@Email,@Phone,@Address,@CountryID)";
+            string sqlQuery = @" INSERT INTO [dbo].[Contacts] " +
+                               " ([FirstName],[LastName],[Email],[Phone],[Address],[CountryID]) " +
+                               " VALUES (@FirstName,@LastName,@Email,@Phone,@Address,@CountryID); " +
+                               " SELECT SCOPE_IDENTITY()";
 
             SqlCommand command = new SqlCommand(sqlQuery, sqlConnection);
 
@@ -44,15 +45,15 @@ namespace Course_18
             try
             {
                 sqlConnection.Open();
-                int rowsAffected = command.ExecuteNonQuery();
+                object result = command.ExecuteScalar();
 
-                if (rowsAffected > 0)
+                if (result != null && int.TryParse(result.ToString(),out int insertedID))
                 {
-                    Console.WriteLine("Record Inserted Successfully.");
+                    Console.WriteLine($"New inserted ID :  {insertedID}");
                 }
                 else 
                 {
-                    Console.WriteLine("Record Insertion Failed.");
+                    Console.WriteLine(" Failed to retrieve the inserted ID");
                 }
             }
             catch (Exception e)
@@ -69,14 +70,14 @@ namespace Course_18
         {
             stContact stContact = new stContact()
             {
-                FirstName = "Ahmad",
-                LastName = "Mahmoud",
-                Email = "AhmadMahmoud@gmail.com",
-                Phone =  "08080904",
-                Address =  "Syria",
-                CountryID = 2
+                FirstName = "Ahmed",
+                LastName = "Sami",
+                Email = "AhmedSami@gmail.com",
+                Phone =  "96955",
+                Address =  "Egypt",
+                CountryID = 1
             };
-            AddNewContact(stContact);
+            AddNewContactAndGetID(stContact);
             
             Console.ReadKey();
         }
