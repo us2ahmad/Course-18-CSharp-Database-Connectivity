@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data.SqlClient;
 
 namespace Course_18
 {
@@ -17,14 +14,14 @@ namespace Course_18
         public int CountryID { get; set; }
       
     }
-
     internal class Program
     {
         static string connectionString = "Server = LAPTOP-TANOHAT6; Database = ContactsDB; Integrated Security = True;";
 
-                public static void PrintAllContacts()
+      
+        public static void PrintAllContacts()
         {
-            SqlConnection sqlConnection = new SqlConnection(connectionString: ConnectionString);
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
             string sqlQuery = "SELECT * FROM Contacts";
 
             SqlCommand  command = new SqlCommand(sqlQuery, sqlConnection);
@@ -58,7 +55,7 @@ namespace Course_18
         }
         public static void PrintAllContactsWithFirstName(string FirstName)
         {
-            SqlConnection sqlConnection = new SqlConnection(connectionString: ConnectionString);
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
             string sqlQuery = "SELECT * FROM Contacts WHERE FirstName = @FirstName";
 
             SqlCommand command = new SqlCommand(sqlQuery, sqlConnection);
@@ -93,7 +90,7 @@ namespace Course_18
         }
         public static void PrintAllContactsWithFirstNameAndCountry(string FirstName,short CountryID)
         {
-            SqlConnection sqlConnection = new SqlConnection(connectionString: ConnectionString);
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
             string sqlQuery = "SELECT * FROM Contacts WHERE FirstName = @FirstName AND CountryID = @CountryID";
             
             SqlCommand command = new SqlCommand(sqlQuery, sqlConnection);
@@ -127,10 +124,11 @@ namespace Course_18
             }
 
         }
+
         public static void SearchContactsStartsWith(string StartsWith)
         {
 
-            SqlConnection sqlConnection = new SqlConnection(ConnectionString);
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
 
             string query = "SELECT * FROM Contacts WHERE FirstName LIKE '' + @StartsWith +'%'";
 
@@ -164,10 +162,11 @@ namespace Course_18
             }
 
         }
+
         public static void SearchContactsEndsWith(string StartsWith)
         {
 
-            SqlConnection sqlConnection = new SqlConnection(ConnectionString);
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
 
             string query = "SELECT * FROM Contacts WHERE FirstName LIKE '%' + @StartsWith +'' ";
 
@@ -201,10 +200,11 @@ namespace Course_18
             }
 
         }
+
         public static void SearchContactsContains(string StartsWith)
         {
 
-            SqlConnection sqlConnection = new SqlConnection(ConnectionString);
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
 
             string query = "SELECT * FROM Contacts WHERE FirstName LIKE '%' + @StartsWith + '%' ";
 
@@ -238,9 +238,10 @@ namespace Course_18
             }
 
         }
+
         public static string GetFirstName(int ContactID)
         {
-            SqlConnection sqlConnection= new SqlConnection(ConnectionString);
+            SqlConnection sqlConnection= new SqlConnection(connectionString);
 
             string FirstName = string.Empty;
             string sqlQuery = "SELECT FirstName From Contacts WHERE ContactID = @ContactID";
@@ -270,11 +271,12 @@ namespace Course_18
 
             return FirstName;
         }
+
         public static bool FindContactByID(int ContactID,ref stContact contact)
         {
             bool isFound = false;
 
-            SqlConnection sqlConnection = new SqlConnection(ConnectionString);
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
 
             string sqlQuery = "SELECT * FROM Contacts WHERE ContactID = @ContactID";
             
@@ -313,7 +315,6 @@ namespace Course_18
             return isFound;
         }
 
-        
         public static void AddNewContactAndGetID(stContact contact)
         {
            SqlConnection sqlConnection = new SqlConnection(connectionString);
@@ -357,51 +358,129 @@ namespace Course_18
             }
         }
 
+        public static void DeleteContact(int contactID)
+        {
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
+
+            string sqlQuery = "DELETE FROM Contacts" +
+                              " WHERE ContactID = @ContactID";
+
+            SqlCommand sqlCommand = new SqlCommand(sqlQuery, sqlConnection);
+            
+            sqlCommand.Parameters.AddWithValue("@ContactID", contactID);
+
+            try
+            {
+                sqlConnection.Open();
+                int rowsAffected = sqlCommand.ExecuteNonQuery();
+               
+                if (rowsAffected > 0)
+                {
+                    Console.WriteLine("Record Deleted Successfully");
+                }
+                else
+                {
+                    Console.WriteLine("Record Delete Failed");
+                }
+                
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                sqlConnection.Close(); 
+            }    
+        }
+
+        public static void DeleteContacts(string contactIDs)
+        {
+            SqlConnection sqlConnection = new SqlConnection(connectionString);
+
+            string sqlQuery = "DELETE FROM Contacts" +
+                              $" WHERE ContactID IN ( {contactIDs} )";
+
+            SqlCommand sqlCommand = new SqlCommand(sqlQuery, sqlConnection);
+
+
+            try
+            {
+                sqlConnection.Open();
+                int rowsAffected = sqlCommand.ExecuteNonQuery();
+
+                if (rowsAffected > 0)
+                {
+                    Console.WriteLine("Record Deleted Successfully");
+                }
+                else
+                {
+                    Console.WriteLine("Record Delete Failed");
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                sqlConnection.Close();
+            }
+        }
+
         static void Main(string[] args)
         {
-                //PrintAllContacts();
-    //PrintAllContactsWithFirstName("John");
-    //PrintAllContactsWithFirstNameAndCountry("John", 1);
+            //PrintAllContacts();
+            //PrintAllContactsWithFirstName("John");
+            //PrintAllContactsWithFirstNameAndCountry("John", 1);
 
-    //Console.WriteLine("--------Contacts starts with 'j'");
-    //SearchContactsStartsWith("j");
+            //Console.WriteLine("--------Contacts starts with 'j'");
+            //SearchContactsStartsWith("j");
 
-    //Console.WriteLine("-------Contacts Ends with 'ne'");
-    //SearchContactsEndsWith("ne");
+            //Console.WriteLine("-------Contacts Ends with 'ne'");
+            //SearchContactsEndsWith("ne");
 
-    //Console.WriteLine("-------Contacts Contains with 'ae'");
-    //SearchContactsContains("ae");
+            //Console.WriteLine("-------Contacts Contains with 'ae'");
+            //SearchContactsContains("ae");
 
-    //Console.WriteLine(GetFirstName(1));
+            //Console.WriteLine(GetFirstName(1));
 
-    //stContact contact = new stContact();    
-    //if(FindContactByID(22,ref contact))
-    //{
-    //    Console.WriteLine($"Contact ID : {contact.ID}");
-    //    Console.WriteLine($"First Name : {contact.FirstName}");
-    //    Console.WriteLine($"Last Name : {contact.LastName}");
-    //    Console.WriteLine($"Email : {contact.Email}");
-    //    Console.WriteLine($"Phone : {contact.Phone}");
-    //    Console.WriteLine($"Address : {contact.Address}");
-    //    Console.WriteLine($"Country ID : {contact.CountryID}");
-    //    Console.WriteLine("----------------------------------------------------------");
-    //}
-    //else
-    //{
-    //    Console.WriteLine("Not Found");
-    //}
+            //stContact contact = new stContact();    
+            //if(FindContactByID(22,ref contact))
+            //{
+            //    Console.WriteLine($"Contact ID : {contact.ID}");
+            //    Console.WriteLine($"First Name : {contact.FirstName}");
+            //    Console.WriteLine($"Last Name : {contact.LastName}");
+            //    Console.WriteLine($"Email : {contact.Email}");
+            //    Console.WriteLine($"Phone : {contact.Phone}");
+            //    Console.WriteLine($"Address : {contact.Address}");
+            //    Console.WriteLine($"Country ID : {contact.CountryID}");
+            //    Console.WriteLine("----------------------------------------------------------");
+            //}
+            //else
+            //{
+            //    Console.WriteLine("Not Found");
+            //}
 
-            stContact stContact = new stContact()
-            {
-                FirstName = "Ahmed",
-                LastName = "Sami",
-                Email = "AhmedSami@gmail.com",
-                Phone =  "96955",
-                Address =  "Egypt",
-                CountryID = 1
-            };
-            AddNewContactAndGetID(stContact);
+            //stContact stContact = new stContact()
+            //{
+            //    FirstName = "Ahmed",
+            //    LastName = "Sami",
+            //    Email = "AhmedSami@gmail.com",
+            //    Phone =  "96955",
+            //    Address =  "Egypt",
+            //    CountryID = 1
+            //};
+            //AddNewContactAndGetID(stContact);
+
+            //DeleteContact(10);
+
+            //DeleteContacts("6,7,9");
             
+
             Console.ReadKey();
         }
     }
